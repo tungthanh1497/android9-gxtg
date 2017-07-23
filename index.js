@@ -7,13 +7,15 @@ var app = express();
 mongoose.connect('mongodb://admin:admin@ds119223.mlab.com:19223/android9-gxtg'
 , {useMongoClient: true});
 
-var hottie = new Hottie({
-    name: "Linh Ca",
-    age: 16,
-    image:"http://kenh14cdn.com/2017/16105485-1455844831123077-5879960679786806858-n-1497890356348.jpg"
-  });
-
-hottie.save();
+// var hottie = new Hottie(
+//     {
+//       name: "Lệ Rơi",
+//       age: 27,
+//       image:"https://i.ytimg.com/vi/tAKXiqwUC6Q/hqdefault.jpg"
+//     }
+// );
+//
+// hottie.save();
 
 
 app.set('port', (process.env.PORT || 5000));
@@ -37,24 +39,40 @@ app.get('/api', function(req, res){
 );
 
 app.get('/api/gxtg', function(req, res){
-    res.json(hotties);
+  Hottie.find(function(err, hotties){
+      if(err){
+        res.json({success:0, message: "Could not get data from mlab"})
+      }else{
+        res.json(hotties);
+      }
+    }
+  );
   }
 );
 
 app.post('/api/gxtg', function(req, res){
   var body = req.body;
 
-  var name = body.name;
-  var age = body.age;
-  var image = body.image;
+  var nameValue = body.name;
+  var ageValue = body.age;
+  var imageValue = body.image;
 
-hotties.push({
-  name:name,
-  age:age,
-  image:image
-});
+  var hottie = new Hottie({
+    name:nameValue,
+    age:ageValue,
+    image:imageValue
+  });
 
-  res.json({"success":"1"});
+  hottie.save(function(err, addedHottie){
+    if(err){
+        res.json({success:0, message: "Could not add record: "+err});
+    }else {
+        res.json(addedHottie);
+    }
+  });
+
+
+
   }
 );
 
